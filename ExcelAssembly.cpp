@@ -48,6 +48,11 @@ BOOL CExcelAssemblyApp::InitInstance()
 
 	CWinApp::InitInstance();
 
+    if (CoInitialize(NULL) != 0)   
+    {   
+        AfxMessageBox(_T("初始化COM支持库失败!"));   
+        return FALSE;
+    }   
 
 	AfxEnableControlContainer();
 

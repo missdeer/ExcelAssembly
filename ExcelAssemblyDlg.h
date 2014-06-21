@@ -31,6 +31,7 @@ protected:
     afx_msg void OnBtnBrowseContact();
     afx_msg void OnBtnBrowseInput();
     afx_msg void OnBtnBrowseOutput();
+    afx_msg void OnOK();
 	DECLARE_MESSAGE_MAP()
 public:
     BOOL m_bSingleFileCheck;

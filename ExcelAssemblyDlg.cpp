@@ -7,6 +7,14 @@
 #include "ExcelAssemblyDlg.h"
 #include "afxdialogex.h"
 
+#include "CApplication.h"
+#include "CRange.h"
+#include "CRanges.h"
+#include "CWorkbook.h"
+#include "CWorkbooks.h"
+#include "CWorksheet.h"
+#include "CWorksheets.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -250,5 +258,10 @@ void CExcelAssemblyDlg::OnBtnBrowseOutput()
         m_sOutput = dlg.GetPathName();
         UpdateData(FALSE);
     }
+}
+
+void CExcelAssemblyDlg::OnOK()
+{
+    AfxMessageBox(_T("OK"));
 }
 

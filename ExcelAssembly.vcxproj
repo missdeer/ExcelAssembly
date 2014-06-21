@@ -99,6 +99,13 @@
     <None Include="res\ExcelAssembly.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CApplication.h" />
+    <ClInclude Include="CRange.h" />
+    <ClInclude Include="CRanges.h" />
+    <ClInclude Include="CWorkbook.h" />
+    <ClInclude Include="CWorkbooks.h" />
+    <ClInclude Include="CWorksheet.h" />
+    <ClInclude Include="CWorksheets.h" />
     <ClInclude Include="ExcelAssembly.h" />
     <ClInclude Include="ExcelAssemblyDlg.h" />
     <ClInclude Include="Resource.h" />
