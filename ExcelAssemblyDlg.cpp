@@ -262,6 +262,40 @@ void CExcelAssemblyDlg::OnBtnBrowseOutput()
 
 void CExcelAssemblyDlg::OnOK()
 {
-    AfxMessageBox(_T("OK"));
+    CApplication app;  
+    CWorkbooks books;  
+    CWorkbook book;  
+    CWorksheets sheets;  
+    CWorksheet sheet;  
+    CRange range;  
+    LPDISPATCH lpDisp;      
+    COleVariant vResult;  
+
+    CString str;  
+
+    COleVariant  
+        covTrue((short)TRUE),  
+        covFalse((short)FALSE),  
+        covOptional((long)DISP_E_PARAMNOTFOUND, VT_ERROR);  
+
+    //创建Excel 2003服务器(启动Excel)  
+    if (!app.CreateDispatch(_T("Excel.Application"),NULL))   
+    {   
+        AfxMessageBox(_T("Create Excel service failure!"));  
+        return;  
+    }  
+
+    // 设置为FALSE时，后面的app.Quit();注释要打开  
+    // 否则EXCEL.EXE进程会一直存在，并且每操作一次就会多开一个进程  
+    app.put_Visible(TRUE);
+    books.AttachDispatch(app.get_Workbooks() ,true);  
+
+    //释放对象    
+    //range.ReleaseDispatch();  
+    //sheet.ReleaseDispatch();  
+    //sheets.ReleaseDispatch();  
+    //book.ReleaseDispatch();  
+    books.ReleaseDispatch();  
+    app.ReleaseDispatch();  
 }
 
