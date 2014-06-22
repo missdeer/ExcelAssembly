@@ -35,7 +35,7 @@ protected:
     afx_msg void OnRadioCommonFile();
     afx_msg void OnRadioContactFile();
 	DECLARE_MESSAGE_MAP()
-public:
+private:
     CString m_sWorksheet;
     CString m_sReadColumns;
     int m_nReadLineFrom;
@@ -50,4 +50,6 @@ public:
     BOOL m_bCommonFile;
     BOOL m_bContactFile;
     BOOL m_bInputSource;
+
+    BOOL CheckInput();
 };

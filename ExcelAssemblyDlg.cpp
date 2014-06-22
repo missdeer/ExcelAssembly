@@ -266,6 +266,14 @@ void CExcelAssemblyDlg::OnBtnBrowseOutput()
 
 void CExcelAssemblyDlg::OnOK()
 {
+    if (AfxMessageBox(_T("请最后检查一遍所有设置，点击”确定“开始处理，点击”取消“重新修改设置。"), MB_OKCANCEL|MB_ICONQUESTION) == IDCANCEL)
+        return ;
+
+    UpdateData(TRUE);
+
+    if (!CheckInput())
+        return ;
+
     CApplication app;  
     CWorkbooks books;  
     CWorkbook book;  
@@ -319,5 +327,142 @@ void CExcelAssemblyDlg::OnRadioContactFile()
     GetDlgItem(IDC_EDIT_COL_VALUE)->EnableWindow(!bChecked);
     GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->EnableWindow(bChecked);
     GetDlgItem(IDC_EDIT_CONTACT_COL_VALUE)->EnableWindow(bChecked);
+}
+
+BOOL CExcelAssemblyDlg::CheckInput()
+{
+    if(!::PathFileExists(m_sInput))
+    {
+        AfxMessageBox(_T("输入源文件或文件夹不存在，请检查后重新输入！"), MB_OK|MB_ICONSTOP);
+        GetDlgItem(IDC_EDIT_INPUT)->SetFocus();
+        return FALSE;
+    }
+
+    if (m_bInputSource && PathIsDirectory(m_sInput))
+    {
+        AfxMessageBox(_T("输入源类型选择了“文件”，输入源路径却指向了一个文件夹，请检查后重新输入！"), MB_OK|MB_ICONSTOP);
+        return FALSE;
+    }
+
+    if (!m_bInputSource && !PathIsDirectory(m_sInput))
+    {
+        AfxMessageBox(_T("输入源类型选择了“文件夹”，输入源路径却指向了一个文件，请检查后重新输入！"), MB_OK|MB_ICONSTOP);
+        return FALSE;
+    }
+
+    if (m_sWorksheet.IsEmpty())
+    {
+        AfxMessageBox(_T("请输入要读取的工作表的序号或名称。"), MB_OK|MB_ICONSTOP);
+        GetDlgItem(IDC_EDIT_WORKSHEET)->SetFocus();
+        return FALSE;
+    }
+
+    if (m_sReadColumns.IsEmpty())
+    {
+        AfxMessageBox(_T("请输入要汇总的列号。"));
+        GetDlgItem(IDC_EDIT_READCOL)->SetFocus();
+        return FALSE;
+    }
+
+    CString readCol = m_sReadColumns.MakeUpper();
+    for(int i = 0; i < readCol.GetLength(); i++)
+    {
+        if (readCol.GetAt(i) != ' ' && (readCol.GetAt(i) < 'A' || readCol.GetAt(i) > 'Z'))
+        {
+            AfxMessageBox(_T("汇总的列号只能输入字母，以空格分隔。"), MB_OK|MB_ICONSTOP);
+            GetDlgItem(IDC_EDIT_READCOL)->SetFocus();
+            return FALSE;
+        }
+    }
+
+    if (m_nReadLineFrom > 10)
+    {
+        if (AfxMessageBox(_T("确定要从这么大的行数开始读取吗？"), MB_YESNO|MB_ICONQUESTION) == IDNO)
+        {
+            GetDlgItem(IDC_EDIT_READLINEFROM)->SetFocus();
+            return FALSE;
+        }
+    }
+
+    if (m_bCommonFile)
+    {
+        if (m_sColIndex.IsEmpty())
+        {
+            AfxMessageBox(_T("请输入汇总条件中本文件的列号。"), MB_OK|MB_ICONSTOP);
+            GetDlgItem(IDC_EDIT_COL_INDEX)->SetFocus();
+            return FALSE;
+        }
+
+        CString col = m_sColIndex.MakeUpper();
+        for(int i = 0; i < col.GetLength(); i++)
+        {
+            if (col.GetAt(i) < 'A' || col.GetAt(i) > 'Z')
+            {
+                AfxMessageBox(_T("汇总条件中本文件的列号只能输入字母。"), MB_OK|MB_ICONSTOP);
+                GetDlgItem(IDC_EDIT_COL_INDEX)->SetFocus();
+                return FALSE;
+            }
+        }
+
+        if (m_sColValue.IsEmpty())
+        {
+            AfxMessageBox(_T("汇总条件中本文件的列匹配的值没有填写！"), MB_OK|MB_ICONSTOP);
+            GetDlgItem(IDC_EDIT_COL_VALUE)->SetFocus();
+            return FALSE;
+        }
+    }
+
+    if (m_bContactFile)
+    {
+        if (m_sContactColIndex.IsEmpty())
+        {
+            AfxMessageBox(_T("请输入汇总条件中花名册的列号。"), MB_OK|MB_ICONSTOP);
+            GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->SetFocus();
+            return FALSE;
+        }
+
+        CString col = m_sContactColIndex.MakeUpper();
+        for(int i = 0; i < col.GetLength(); i++)
+        {
+            if (col.GetAt(i) < 'A' || col.GetAt(i) > 'Z')
+            {
+                AfxMessageBox(_T("汇总条件中花名册的列号只能输入字母。"), MB_OK|MB_ICONSTOP);
+                GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->SetFocus();
+                return FALSE;
+            }
+        }
+
+        if (m_sContactColValue.IsEmpty())
+        {
+            AfxMessageBox(_T("汇总条件中花名册的列匹配的值没有填写！"), MB_OK|MB_ICONSTOP);
+            GetDlgItem(IDC_EDIT_CONTACT_COL_VALUE)->SetFocus();
+            return FALSE;
+        }
+
+        if (m_sContact.IsEmpty())
+        {
+            AfxMessageBox(_T("你在汇总条件中选择了使用花名册，却没有指定花名册的路径。"), MB_OK|MB_ICONSTOP);
+            GetDlgItem(IDC_EDIT_CONTACT)->SetFocus();
+            return FALSE;
+        }
+    }
+
+    if (m_sOutput.IsEmpty())
+    {
+        AfxMessageBox(_T("请填写输出文件路径。"), MB_OK|MB_ICONSTOP);
+        GetDlgItem(IDC_EDIT_OUTPUT)->SetFocus();
+        return FALSE;
+    }
+
+    if (!m_bAppend && PathFileExists(m_sOutput))
+    {
+        if (AfxMessageBox(_T("输出文件已存在，确定要覆盖吗？"), MB_YESNO | MB_ICONQUESTION) == IDNO)
+        {
+            GetDlgItem(IDC_EDIT_OUTPUT)->SetFocus();
+            return FALSE;
+        }
+    }
+
+    return TRUE;
 }
 
