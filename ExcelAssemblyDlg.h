@@ -32,10 +32,10 @@ protected:
     afx_msg void OnBtnBrowseInput();
     afx_msg void OnBtnBrowseOutput();
     afx_msg void OnOK();
+    afx_msg void OnRadioCommonFile();
+    afx_msg void OnRadioContactFile();
 	DECLARE_MESSAGE_MAP()
 public:
-    BOOL m_bSingleFileCheck;
-    BOOL m_bFolderCheck;
     CString m_sWorksheet;
     CString m_sReadColumns;
     int m_nReadLineFrom;
@@ -47,4 +47,7 @@ public:
     CString m_sOutput;
     BOOL m_bAppend;
     CString m_sInput;
+    BOOL m_bCommonFile;
+    BOOL m_bContactFile;
+    BOOL m_bInputSource;
 };

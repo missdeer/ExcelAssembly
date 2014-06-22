@@ -58,8 +58,6 @@ END_MESSAGE_MAP()
 
 CExcelAssemblyDlg::CExcelAssemblyDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CExcelAssemblyDlg::IDD, pParent)
-    , m_bSingleFileCheck(TRUE)
-    , m_bFolderCheck(FALSE)
     , m_sWorksheet(_T(""))
     , m_sReadColumns(_T(""))
     , m_nReadLineFrom(3)
@@ -71,6 +69,9 @@ CExcelAssemblyDlg::CExcelAssemblyDlg(CWnd* pParent /*=NULL*/)
     , m_sOutput(_T(""))
     , m_bAppend(FALSE)
     , m_sInput(_T(""))
+    , m_bCommonFile(TRUE)
+    , m_bContactFile(FALSE)
+    , m_bInputSource(TRUE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -78,8 +79,6 @@ CExcelAssemblyDlg::CExcelAssemblyDlg(CWnd* pParent /*=NULL*/)
 void CExcelAssemblyDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
-    DDX_Check(pDX, IDC_RADIO_FILE, m_bSingleFileCheck);
-    DDX_Check(pDX, IDC_RADIO_FOLDER, m_bFolderCheck);
     DDX_Text(pDX, IDC_EDIT_WORKSHEET, m_sWorksheet);
     DDX_Text(pDX, IDC_EDIT_READCOL, m_sReadColumns);
     DDX_Text(pDX, IDC_EDIT_READLINEFROM, m_nReadLineFrom);
@@ -91,6 +90,9 @@ void CExcelAssemblyDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT_OUTPUT, m_sOutput);
     DDX_Check(pDX, IDC_CHECK_APPEND, m_bAppend);
     DDX_Text(pDX, IDC_EDIT_INPUT, m_sInput);
+    DDX_Check(pDX, IDC_RADIO_COMMONFILE, m_bCommonFile);
+    DDX_Check(pDX, IDC_RADIO_CONTACTFILE, m_bContactFile);
+    DDX_Check(pDX, IDC_CHECK_INPUTSOURCE, m_bInputSource);
 }
 
 BEGIN_MESSAGE_MAP(CExcelAssemblyDlg, CDialogEx)
@@ -100,6 +102,8 @@ BEGIN_MESSAGE_MAP(CExcelAssemblyDlg, CDialogEx)
     ON_COMMAND(IDC_BTN_BROWSE_CONTACT, &CExcelAssemblyDlg::OnBtnBrowseContact)
     ON_COMMAND(IDC_BTN_BROWSE_INPUT, &CExcelAssemblyDlg::OnBtnBrowseInput)
     ON_COMMAND(IDC_BTN_BROWSE_OUTPUT, &CExcelAssemblyDlg::OnBtnBrowseOutput)
+    ON_COMMAND(IDC_RADIO_COMMONFILE, &CExcelAssemblyDlg::OnRadioCommonFile)
+    ON_COMMAND(IDC_RADIO_CONTACTFILE, &CExcelAssemblyDlg::OnRadioContactFile)
 END_MESSAGE_MAP()
 
 
@@ -207,7 +211,7 @@ void CExcelAssemblyDlg::OnBtnBrowseContact()
 void CExcelAssemblyDlg::OnBtnBrowseInput()
 {
     UpdateData(TRUE);
-    if (m_bSingleFileCheck)
+    if (m_bInputSource)
     {
         CFileDialog dlg(TRUE,
             NULL,
@@ -297,5 +301,23 @@ void CExcelAssemblyDlg::OnOK()
     //book.ReleaseDispatch();  
     books.ReleaseDispatch();  
     app.ReleaseDispatch();  
+}
+
+void CExcelAssemblyDlg::OnRadioCommonFile()
+{
+    BOOL bChecked = ((CButton*)GetDlgItem(IDC_RADIO_COMMONFILE))->GetCheck();
+    GetDlgItem(IDC_EDIT_COL_INDEX)->EnableWindow(bChecked);
+    GetDlgItem(IDC_EDIT_COL_VALUE)->EnableWindow(bChecked);
+    GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->EnableWindow(!bChecked);
+    GetDlgItem(IDC_EDIT_CONTACT_COL_VALUE)->EnableWindow(!bChecked);
+}
+
+void CExcelAssemblyDlg::OnRadioContactFile()
+{
+    BOOL bChecked = ((CButton*)GetDlgItem(IDC_RADIO_CONTACTFILE))->GetCheck();
+    GetDlgItem(IDC_EDIT_COL_INDEX)->EnableWindow(!bChecked);
+    GetDlgItem(IDC_EDIT_COL_VALUE)->EnableWindow(!bChecked);
+    GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->EnableWindow(bChecked);
+    GetDlgItem(IDC_EDIT_CONTACT_COL_VALUE)->EnableWindow(bChecked);
 }
 
