@@ -72,6 +72,8 @@ CExcelAssemblyDlg::CExcelAssemblyDlg(CWnd* pParent /*=NULL*/)
     , m_bCommonFile(TRUE)
     , m_bContactFile(FALSE)
     , m_bInputSource(TRUE)
+    , m_sContactMatchColIndex(_T(""))
+    , m_sFileMatchColIndex(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -93,6 +95,8 @@ void CExcelAssemblyDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_RADIO_COMMONFILE, m_bCommonFile);
     DDX_Check(pDX, IDC_RADIO_CONTACTFILE, m_bContactFile);
     DDX_Check(pDX, IDC_CHECK_INPUTSOURCE, m_bInputSource);
+    DDX_Text(pDX, IDC_EDIT_CONTACT_MATCHCOL_INDEX, m_sContactMatchColIndex);
+    DDX_Text(pDX, IDC_EDIT_FILE_MATCHCOL_INDEX, m_sFileMatchColIndex);
 }
 
 BEGIN_MESSAGE_MAP(CExcelAssemblyDlg, CDialogEx)
@@ -266,7 +270,8 @@ void CExcelAssemblyDlg::OnBtnBrowseOutput()
 
 void CExcelAssemblyDlg::OnOK()
 {
-    if (AfxMessageBox(_T("请最后检查一遍所有设置，点击”确定“开始处理，点击”取消“重新修改设置。"), MB_OKCANCEL|MB_ICONQUESTION) == IDCANCEL)
+    if (AfxMessageBox(_T("请最后检查一遍所有设置，点击”确定“开始处理，点击”取消“重新修改设置。"), 
+        MB_OKCANCEL|MB_ICONQUESTION) == IDCANCEL)
         return ;
 
     UpdateData(TRUE);
@@ -318,6 +323,8 @@ void CExcelAssemblyDlg::OnRadioCommonFile()
     GetDlgItem(IDC_EDIT_COL_VALUE)->EnableWindow(bChecked);
     GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->EnableWindow(!bChecked);
     GetDlgItem(IDC_EDIT_CONTACT_COL_VALUE)->EnableWindow(!bChecked);
+    GetDlgItem(IDC_EDIT_CONTACT_MATCHCOL_INDEX)->EnableWindow(!bChecked);
+    GetDlgItem(IDC_EDIT_FILE_MATCHCOL_INDEX)->EnableWindow(!bChecked);
 }
 
 void CExcelAssemblyDlg::OnRadioContactFile()
@@ -327,6 +334,8 @@ void CExcelAssemblyDlg::OnRadioContactFile()
     GetDlgItem(IDC_EDIT_COL_VALUE)->EnableWindow(!bChecked);
     GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->EnableWindow(bChecked);
     GetDlgItem(IDC_EDIT_CONTACT_COL_VALUE)->EnableWindow(bChecked);
+    GetDlgItem(IDC_EDIT_CONTACT_MATCHCOL_INDEX)->EnableWindow(bChecked);
+    GetDlgItem(IDC_EDIT_FILE_MATCHCOL_INDEX)->EnableWindow(bChecked);
 }
 
 BOOL CExcelAssemblyDlg::CheckInput()
@@ -414,19 +423,41 @@ BOOL CExcelAssemblyDlg::CheckInput()
 
     if (m_bContactFile)
     {
-        if (m_sContactColIndex.IsEmpty())
+        if (m_sContactColIndex.IsEmpty() || m_sContactMatchColIndex.IsEmpty() || m_sFileMatchColIndex.IsEmpty())
         {
-            AfxMessageBox(_T("请输入汇总条件中花名册的列号。"), MB_OK|MB_ICONSTOP);
+            AfxMessageBox(_T("请输入汇总条件中花名册和源文件的列号。"), MB_OK|MB_ICONSTOP);
             GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->SetFocus();
             return FALSE;
         }
 
         CString col = m_sContactColIndex.MakeUpper();
         for(int i = 0; i < col.GetLength(); i++)
-        {
+        { 
             if (col.GetAt(i) < 'A' || col.GetAt(i) > 'Z')
             {
                 AfxMessageBox(_T("汇总条件中花名册的列号只能输入字母。"), MB_OK|MB_ICONSTOP);
+                GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->SetFocus();
+                return FALSE;
+            }
+        }
+
+        col = m_sContactMatchColIndex.MakeUpper();
+        for(int i = 0; i < col.GetLength(); i++)
+        { 
+            if (col.GetAt(i) < 'A' || col.GetAt(i) > 'Z')
+            {
+                AfxMessageBox(_T("汇总条件中花名册待匹配的列号只能输入字母。"), MB_OK|MB_ICONSTOP);
+                GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->SetFocus();
+                return FALSE;
+            }
+        }
+
+        col = m_sFileMatchColIndex.MakeUpper();
+        for(int i = 0; i < col.GetLength(); i++)
+        { 
+            if (col.GetAt(i) < 'A' || col.GetAt(i) > 'Z')
+            {
+                AfxMessageBox(_T("汇总条件中源文件待匹配的列号只能输入字母。"), MB_OK|MB_ICONSTOP);
                 GetDlgItem(IDC_EDIT_CONTACT_COL_INDEX)->SetFocus();
                 return FALSE;
             }
@@ -465,4 +496,3 @@ BOOL CExcelAssemblyDlg::CheckInput()
 
     return TRUE;
 }
-
